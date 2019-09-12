@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'app/data/globals.dart';
+import 'app/data/services/globals.dart';
 import 'app/pages/home.dart';
 import 'app/pages/login.dart';
 

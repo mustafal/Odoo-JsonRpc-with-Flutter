@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:odoo_client/app/data/globals.dart';
+import 'package:odoo_client/app/data/services/globals.dart';
 import 'package:odoo_client/app/data/services/odoo_api.dart';
 import 'package:odoo_client/app/data/services/odoo_response.dart';
+import 'package:odoo_client/app/data/services/utils.dart';
+import 'package:odoo_client/app/pages/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -118,7 +120,7 @@ class _LoginState extends State<Login> {
       },
     ).catchError(
       (e) {
-        _showMessage("Invalid URL");
+        Utils(context: context).showMessage("Warning", "Invalid URL");
       },
     );
   }
@@ -342,48 +344,15 @@ class _LoginState extends State<Login> {
           ],
         ),
       ),
-    );
-  }
-
-  _showMessage(String message) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext ctxt) {
-        return AlertDialog(
-          title: Text(
-            "Warning",
-            style: TextStyle(
-              fontFamily: "Montserrat",
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          content: Text(
-            message,
-            style: TextStyle(
-              fontFamily: "Montserrat",
-              fontSize: 18,
-              color: Colors.black,
-            ),
-          ),
-          actions: <Widget>[
-            FlatButton(
+      floatingActionButton: !isFirstTime
+          ? FloatingActionButton(
+              child: Icon(Icons.settings),
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => Settings()));
               },
-              child: Text(
-                "Ok",
-                style: TextStyle(
-                  fontFamily: "Montserrat",
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+            )
+          : SizedBox(height: 0.0),
     );
   }
 }

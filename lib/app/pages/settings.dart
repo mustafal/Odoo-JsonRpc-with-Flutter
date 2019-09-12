@@ -1,10 +1,9 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:odoo_client/app/data/services/odoo_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:odoo_client/app/data/globals.dart';
+import 'package:odoo_client/app/data/services/globals.dart';
 
 class Settings extends StatefulWidget {
   @override
@@ -14,6 +13,7 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   TextEditingController _urlCtrler = new TextEditingController();
   Odoo _odoo;
+  String odooURL = "";
 
   @override
   void initState() {
@@ -26,6 +26,7 @@ class _SettingsState extends State<Settings> {
     if (prefs.getString("odooUrl") != null) {
       setState(() {
         _urlCtrler.text = prefs.getString("odooUrl");
+        odooURL = prefs.getString("odooUrl");
       });
     }
   }
@@ -178,8 +179,7 @@ class _SettingsState extends State<Settings> {
 
   _clearPrefs() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    var user = jsonDecode(preferences.getString(Globals().loginPrefName));
-    _odoo = Odoo(url: user['url']);
+    _odoo = Odoo(url: odooURL);
     _odoo.destroy();
     preferences.remove(Globals().loginPrefName);
     preferences.remove("session");

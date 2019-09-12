@@ -1,9 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:odoo_client/app/data/services/odoo_api.dart';
 import 'package:odoo_client/app/data/services/odoo_response.dart';
 import 'package:odoo_client/app/data/services/utils.dart';
+import 'package:odoo_client/app/pages/partner_details.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'settings.dart';
 import 'package:odoo_client/app/data/pojo/partners.dart';
@@ -143,36 +142,49 @@ class _HomeState extends State<Home> {
               ? ListView.builder(
                   itemCount: _partners.length,
                   physics: const AlwaysScrollableScrollPhysics(),
-                  itemBuilder: (context, i) => Column(
-                    children: <Widget>[
-                      Divider(
-                        height: 10.0,
-                      ),
-                      ListTile(
-                        leading: CircleAvatar(
-                          foregroundColor: Theme.of(context).primaryColor,
-                          backgroundColor: Colors.grey,
-                          backgroundImage: NetworkImage(_partners[i].imageUrl),
-                        ),
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              _partners[i].name,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        subtitle: Container(
-                          padding: const EdgeInsets.only(top: 5.0),
-                          child: Text(
-                            _partners[i].email,
-                            style:
-                                TextStyle(color: Colors.grey, fontSize: 15.0),
+                  itemBuilder: (context, i) => InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PartnerDetails(
+                            data: _partners[i],
                           ),
                         ),
-                      )
-                    ],
+                      );
+                    },
+                    child: Column(
+                      children: <Widget>[
+                        Divider(
+                          height: 10.0,
+                        ),
+                        ListTile(
+                          leading: CircleAvatar(
+                            foregroundColor: Theme.of(context).primaryColor,
+                            backgroundColor: Colors.grey,
+                            backgroundImage:
+                                NetworkImage(_partners[i].imageUrl),
+                          ),
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                _partners[i].name,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          subtitle: Container(
+                            padding: const EdgeInsets.only(top: 5.0),
+                            child: Text(
+                              _partners[i].email,
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 15.0),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 )
               : emptyView,

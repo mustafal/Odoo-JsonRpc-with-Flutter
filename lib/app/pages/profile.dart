@@ -4,7 +4,7 @@ import 'package:odoo_client/app/data/services/odoo_api.dart';
 import 'package:odoo_client/app/data/services/odoo_response.dart';
 import 'package:odoo_client/app/data/services/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:odoo_client/app/data/globals.dart';
+import 'package:odoo_client/app/data/services/globals.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -33,7 +33,7 @@ class _ProfilePageState extends State<ProfilePage> {
       var user = jsonDecode(preferences.getString(Globals().loginPrefName));
       _odoo = new Odoo(url: user['url'])
         ..searchRead("res.users", [
-          ["id", "=", user['uid']] //model
+          ["id", "=", user['uid']]
         ], []).then(
           (OdooResponse res) {
             if (!res.hasError()) {
@@ -58,6 +58,20 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  _clearPrefs() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    var user = jsonDecode(preferences.getString(Globals().loginPrefName));
+    _odoo = Odoo(url: user['url']);
+    _odoo.destroy();
+    preferences.remove(Globals().loginPrefName);
+    preferences.remove("session");
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/login',
+      (_) => false,
+    );
+  }
+
   _getProfileData() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     if (preferences.getString(Globals().loginPrefName) != null) {
@@ -70,18 +84,18 @@ class _ProfilePageState extends State<ProfilePage> {
             if (!res.hasError()) {
               setState(() {
                 final result = res.getResult()['records'][0];
-                phone = result['phone'] is! bool ? result['phone'] : "";
-                mobile = result['mobile'] is! bool ? result['mobile'] : "";
+                phone = result['phone'] is! bool ? result['phone'] : "N/A";
+                mobile = result['mobile'] is! bool ? result['mobile'] : "N/A";
                 street = result['street'] is! bool ? result['street'] : "";
                 street2 = result['street2'] is! bool ? result['street2'] : "";
                 city = result['city'] is! bool ? result['city'] : "";
                 state_id =
                     result['state_id'][1] is! bool ? result['state_id'][1] : "";
                 zip = result['zip'] is! bool ? result['zip'] : "";
-                title = result['title'][1] is! bool ? result['title'][1] : "";
-                website = result['website'] is! bool ? result['website'] : "";
+                title = result['title'][1] is! bool ? result['title'][1] : "N/A";
+                website = result['website'] is! bool ? result['website'] : "N/A";
                 jobposition =
-                    result['function'] is! bool ? result['function'] : "";
+                    result['function'] is! bool ? result['function'] : "N/A";
               });
             }
           },
@@ -169,211 +183,157 @@ class _ProfilePageState extends State<ProfilePage> {
     final lower = Container(
       child: ListView(
         children: <Widget>[
-          jobposition != null && jobposition != ""
-              ? InkWell(
-                  onTap: () {},
-                  child: Container(
-                    height: 75,
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.all(10.0),
-                    child: Card(
-                      elevation: 5,
-                      child: Row(
-                        children: <Widget>[
-                          Padding(padding: EdgeInsets.only(right: 10.0)),
-                          Icon(Icons.person_pin, color: Colors.black),
-                          Padding(padding: EdgeInsets.only(left: 10.0)),
-                          Text(
-                            jobposition != null ? jobposition : "",
-                            style: TextStyle(
-                              fontSize: 19.0,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Montserrat",
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+          Container(
+            height: 75,
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.all(10.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Padding(padding: EdgeInsets.only(right: 10.0)),
+                Icon(Icons.person_pin),
+                Padding(padding: EdgeInsets.only(left: 10.0)),
+                Text(
+                  jobposition,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontFamily: "Montserrat",
                   ),
-                )
-              : SizedBox(height: 0.0),
-          title != null && title != ""
-              ? InkWell(
-                  onTap: () {},
-                  child: Container(
-                    height: 75,
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.all(10.0),
-                    child: Card(
-                      elevation: 5,
-                      child: Row(
-                        children: <Widget>[
-                          Padding(padding: EdgeInsets.only(right: 10.0)),
-                          Icon(Icons.title, color: Colors.black),
-                          Padding(padding: EdgeInsets.only(left: 10.0)),
-                          Text(
-                            title != null ? title : "",
-                            style: TextStyle(
-                              fontSize: 19.0,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Montserrat",
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-              : SizedBox(
-                  height: 0.0,
                 ),
-          website != null && website != ""
-              ? InkWell(
-                  child: Container(
-                    height: 75,
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.all(10.0),
-                    child: Card(
-                      elevation: 5,
-                      child: Row(
-                        children: <Widget>[
-                          Padding(padding: EdgeInsets.only(right: 10.0)),
-                          Icon(Icons.web_asset, color: Colors.black),
-                          Padding(padding: EdgeInsets.only(left: 10.0)),
-                          Text(
-                            website != null ? website : "",
-                            style: TextStyle(
-                              fontSize: 19.0,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Montserrat",
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-              : SizedBox(
-                  height: 0.0,
-                ),
-          mobile != null && mobile != ""
-              ? InkWell(
-                  child: Container(
-                    height: 75,
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.all(10.0),
-                    child: Card(
-                      elevation: 5,
-                      child: Row(
-                        children: <Widget>[
-                          Padding(padding: EdgeInsets.only(right: 10.0)),
-                          Icon(Icons.phone_android, color: Colors.black),
-                          Padding(padding: EdgeInsets.only(left: 10.0)),
-                          Text(
-                            mobile != null ? mobile : "",
-                            style: TextStyle(
-                              fontSize: 19.0,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Montserrat",
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-              : SizedBox(
-                  height: 0.0,
-                ),
-          phone != null && phone != ""
-              ? InkWell(
-                  child: Container(
-                    height: 75,
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.all(10.0),
-                    child: Card(
-                      elevation: 5,
-                      child: Row(
-                        children: <Widget>[
-                          Padding(padding: EdgeInsets.only(right: 10.0)),
-                          Icon(Icons.phone, color: Colors.black),
-                          Padding(padding: EdgeInsets.only(left: 10.0)),
-                          Text(
-                            phone != null ? phone : "",
-                            style: TextStyle(
-                              fontSize: 19.0,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Montserrat",
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-              : SizedBox(
-                  height: 0.0,
-                ),
-          InkWell(
-            onTap: () {},
-            child: Container(
-              height: 163,
-              width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.all(10.0),
-              child: Card(
-                elevation: 5,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(padding: EdgeInsets.only(right: 10.0)),
-                    Icon(Icons.location_city, color: Colors.black),
-                    Padding(padding: EdgeInsets.only(left: 10.0)),
-                    Container(
-                      padding:
-                          EdgeInsets.only(left: 10.0, bottom: 9.0, top: 9.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            street,
-                            style: TextStyle(
-                              fontSize: 19.0,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Montserrat",
-                            ),
-                          ),
-                          Text(
-                            city,
-                            style: TextStyle(
-                              fontSize: 19.0,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Montserrat",
-                            ),
-                          ),
-                          Text(
-                            state_id,
-                            style: TextStyle(
-                              fontSize: 19.0,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Montserrat",
-                            ),
-                          ),
-                          Text(
-                            zip,
-                            style: TextStyle(
-                              fontSize: 19.0,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Montserrat",
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              ],
             ),
           ),
+          Divider(),
+          Container(
+            height: 75,
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.all(10.0),
+            child: Row(
+              children: <Widget>[
+                Padding(padding: EdgeInsets.only(right: 10.0)),
+                Icon(Icons.title, color: Colors.black),
+                Padding(padding: EdgeInsets.only(left: 10.0)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontFamily: "Montserrat",
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(),
+          Container(
+            height: 75,
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.all(10.0),
+            child: Row(
+              children: <Widget>[
+                Padding(padding: EdgeInsets.only(right: 10.0)),
+                Icon(Icons.web_asset, color: Colors.black),
+                Padding(padding: EdgeInsets.only(left: 10.0)),
+                Text(
+                  website,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontFamily: "Montserrat",
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(),
+          Container(
+            height: 75,
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.all(10.0),
+            child: Row(
+              children: <Widget>[
+                Padding(padding: EdgeInsets.only(right: 10.0)),
+                Icon(Icons.phone_android, color: Colors.black),
+                Padding(padding: EdgeInsets.only(left: 10.0)),
+                Text(
+                  mobile,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontFamily: "Montserrat",
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(),
+          Container(
+            height: 75,
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.all(10.0),
+            child: Row(
+              children: <Widget>[
+                Padding(padding: EdgeInsets.only(right: 10.0)),
+                Icon(Icons.phone, color: Colors.black),
+                Padding(padding: EdgeInsets.only(left: 10.0)),
+                Text(
+                  phone,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontFamily: "Montserrat",
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(),
+          Container(
+            height: 120,
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.all(10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Padding(padding: EdgeInsets.only(right: 10.0)),
+                Icon(Icons.location_city),
+                Padding(padding: EdgeInsets.only(left: 10.0)),
+                Container(
+                  padding: EdgeInsets.only(left: 10.0, bottom: 9.0, top: 9.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        street,
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontFamily: "Montserrat",
+                        ),
+                      ),
+                      Text(
+                        city,
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontFamily: "Montserrat",
+                        ),
+                      ),
+                      Text(
+                        state_id,
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontFamily: "Montserrat",
+                        ),
+                      ),
+                      Text(
+                        zip,
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontFamily: "Montserrat",
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider()
         ],
       ),
     );
@@ -442,20 +402,6 @@ class _ProfilePageState extends State<ProfilePage> {
       body: Column(
         children: <Widget>[upper_header, Expanded(child: lower)],
       ),
-    );
-  }
-
-  _clearPrefs() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    var user = jsonDecode(preferences.getString(Globals().loginPrefName));
-    _odoo = Odoo(url: user['url']);
-    _odoo.destroy();
-    preferences.remove(Globals().loginPrefName);
-    preferences.remove("session");
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/login',
-      (_) => false,
     );
   }
 }

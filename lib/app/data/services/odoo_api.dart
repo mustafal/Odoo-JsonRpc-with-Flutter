@@ -192,9 +192,7 @@ class Odoo {
     print("PAYLOD : ${payload}");
     print("HEADERS: ${_headers}");
     print("------------------------------------------->>>");*/
-    final response = await _client
-        .post(url, body: body, headers: _headers)
-        .timeout(const Duration(seconds: 30));
+    final response = await _client.post(url, body: body, headers: _headers);
     _updateCookies(response);
     /*print("<<<<============================================");
     print("STATUS_C: ${response.statusCode}");

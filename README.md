@@ -1,5 +1,9 @@
-# odoo_mobile_framework_with_flutter
+# Odoo Mobile Framework With Flutter
 Odoo Mobile framework with flutter
+
+# Supported Platforms
+    -> Android
+    -> iOS
 
 # MIT License
 
