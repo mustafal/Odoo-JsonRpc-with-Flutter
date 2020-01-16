@@ -3,16 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:odoo_client/app/data/services/odoo_api.dart';
 import 'package:odoo_client/app/data/services/odoo_response.dart';
 import 'package:odoo_client/app/data/services/utils.dart';
+import 'package:odoo_client/app/utility/constant.dart';
+import 'package:odoo_client/app/utility/strings.dart';
+import 'package:odoo_client/base.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:odoo_client/app/data/services/globals.dart';
+
+import 'login.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  Odoo _odoo;
+class _ProfilePageState extends Base<ProfilePage> {
   String name = "";
   String image_URL = "";
   String email = "";
@@ -28,59 +32,48 @@ class _ProfilePageState extends State<ProfilePage> {
   var jobposition = "";
 
   _getUserData() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    if (preferences.getString(Globals().loginPrefName) != null) {
-      var user = jsonDecode(preferences.getString(Globals().loginPrefName));
-      _odoo = new Odoo(url: user['url'])
-        ..searchRead("res.users", [
-          ["id", "=", user['uid']]
+    isConnected().then((isInternet) {
+      if (isInternet) {
+        odoo.searchRead(Strings.res_users, [
+          ["id", "=", getUID()]
         ], []).then(
-          (OdooResponse res) {
+              (OdooResponse res) {
             if (!res.hasError()) {
               setState(() {
-                String session = preferences.getString("session");
+                String session = getSession();
                 session = session.split(",")[0].split(";")[0];
                 final result = res.getResult()['records'][0];
                 name = result['name'] is! bool ? result['name'] : "";
-                image_URL = user['url'] +
+                image_URL = getURL() +
                     "/web/content?model=res.users&field=image&" +
                     session +
                     "&id=" +
-                    user['uid'].toString();
+                    getUID().toString();
                 email = result['email'] is! bool ? result['email'] : "";
               });
             } else {
-              Utils(context: context)
-                  .showMessage("Warning", res.getErrorMessage());
+              showMessage("Warning", res.getErrorMessage());
             }
           },
         );
-    }
+      }
+    });
   }
 
   _clearPrefs() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    var user = jsonDecode(preferences.getString(Globals().loginPrefName));
-    _odoo = Odoo(url: user['url']);
-    _odoo.destroy();
-    preferences.remove(Globals().loginPrefName);
-    preferences.remove("session");
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/login',
-      (_) => false,
-    );
+    odoo.destroy();
+    preferences.remove(Constants.USER_PREF);
+    preferences.remove(Constants.SESSION);
+    pushAndRemoveUntil(Login());
   }
 
   _getProfileData() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    if (preferences.getString(Globals().loginPrefName) != null) {
-      var user = jsonDecode(preferences.getString(Globals().loginPrefName));
-      _odoo = new Odoo(url: user['url'])
-        ..searchRead("res.partner", [
-          ["id", "=", user['partner_id']] //model
+    isConnected().then((isInternet) {
+      if (isInternet) {
+        odoo.searchRead("res.partner", [
+          ["id", "=", user.result.partnerId] //model
         ], []).then(
-          (OdooResponse res) {
+              (OdooResponse res) {
             if (!res.hasError()) {
               setState(() {
                 final result = res.getResult()['records'][0];
@@ -90,29 +83,27 @@ class _ProfilePageState extends State<ProfilePage> {
                 street2 = result['street2'] is! bool ? result['street2'] : "";
                 city = result['city'] is! bool ? result['city'] : "";
                 state_id =
-                    result['state_id'][1] is! bool ? result['state_id'][1] : "";
+                result['state_id'][1] is! bool ? result['state_id'][1] : "";
                 zip = result['zip'] is! bool ? result['zip'] : "";
                 title = result['title'][1] is! bool ? result['title'][1] : "N/A";
                 website = result['website'] is! bool ? result['website'] : "N/A";
                 jobposition =
-                    result['function'] is! bool ? result['function'] : "N/A";
+                result['function'] is! bool ? result['function'] : "N/A";
               });
             }
           },
         );
-    }
+      }
+    });
   }
 
   @override
   void initState() {
     super.initState();
-    _getUserData();
-    _getProfileData();
-    Utils().isConnected().then((isInternet) {
-      if (!isInternet) {
-        Scaffold.of(context).showSnackBar(
-            new SnackBar(content: Text("No Internet Connection!")));
-      }
+
+    getOdooInstance().then((odoo) {
+      _getUserData();
+      _getProfileData();
     });
   }
 
@@ -339,6 +330,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
 
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: Text("Profile"),
         actions: <Widget>[

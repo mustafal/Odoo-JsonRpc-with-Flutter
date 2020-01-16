@@ -1,74 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:odoo_client/app/data/pojo/partners.dart';
 import 'package:odoo_client/app/data/services/odoo_api.dart';
 import 'package:odoo_client/app/data/services/odoo_response.dart';
-import 'package:odoo_client/app/data/services/utils.dart';
 import 'package:odoo_client/app/pages/partner_details.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'settings.dart';
-import 'package:odoo_client/app/data/pojo/partners.dart';
+import 'package:odoo_client/app/utility/strings.dart';
+import 'package:odoo_client/base.dart';
+
 import 'profile.dart';
+import 'settings.dart';
 
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
-  Odoo _odoo;
+class _HomeState extends Base<Home> {
+  //Odoo _odoo;
   List<Partner> _partners = [];
-  bool _isLoading = false;
 
   _getPartners() async {
-    _isLoading = true;
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    _odoo = Odoo(url: preferences.getString("odooUrl"))
-      ..searchRead("res.partner", [], []).then(
-        (OdooResponse res) {
-          if (!res.hasError()) {
-            setState(() {
-              _isLoading = false;
-              String session = preferences.getString("session");
-              session = session.split(",")[0].split(";")[0];
-              for (var i in res.getRecords()) {
-                _partners.add(
-                  new Partner(
-                    id: i["id"],
-                    email: i["email"] is! bool ? i["email"] : "N/A",
-                    name: i["name"],
-                    phone: i["phone"] is! bool ? i["phone"] : "N/A",
-                    imageUrl: preferences.getString("odooUrl") +
-                        "/web/content?model=res.partner&field=image&" +
-                        session +
-                        "&id=" +
-                        i["id"].toString(),
-                  ),
-                );
-              }
-            });
-          } else {
-            setState(() {
-              _isLoading = false;
-            });
-            Utils(context: context)
-                .showMessage("Warning", res.getErrorMessage());
-          }
-        },
-      );
+    isConnected().then((isInternet) {
+      if (isInternet) {
+        showLoading();
+        odoo.searchRead(Strings.res_partner, [], []).then(
+              (OdooResponse res) {
+            if (!res.hasError()) {
+              setState(() {
+                hideLoading();
+                String session = getSession();
+                session = session.split(",")[0].split(";")[0];
+                for (var i in res.getRecords()) {
+                  _partners.add(
+                    new Partner(
+                      id: i["id"],
+                      email: i["email"] is! bool ? i["email"] : "N/A",
+                      name: i["name"],
+                      phone: i["phone"] is! bool ? i["phone"] : "N/A",
+                      imageUrl: getURL() +
+                          "/web/content?model=res.partner&field=image&" +
+                          session +
+                          "&id=" +
+                          i["id"].toString(),
+                    ),
+                  );
+                }
+              });
+            } else {
+              print(res.getError());
+              showMessage("Warning", res.getErrorMessage());
+            }
+          },
+        );
+      }
+    });
   }
 
   @override
   void initState() {
     super.initState();
-    Utils().isConnected().then((isInternet) {
-      if (!isInternet) {
-        Scaffold.of(context).showSnackBar(
-            new SnackBar(content: Text("No Internet Connection!")));
-        setState(() {
-          _isLoading = false;
-        });
-      }
+
+    getOdooInstance().then((odoo) async {
+      _getPartners();
     });
-    _getPartners();
   }
 
   @override
@@ -88,7 +81,7 @@ class _HomeState extends State<Home> {
             Padding(
               padding: EdgeInsets.all(1.0),
               child: Text(
-                "No Orders",
+                Strings.no_orders,
                 style: TextStyle(
                   color: Colors.grey.shade500,
                   fontSize: 20,
@@ -101,6 +94,7 @@ class _HomeState extends State<Home> {
     );
 
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: Text("Home"),
         actions: <Widget>[
@@ -110,12 +104,7 @@ class _HomeState extends State<Home> {
               color: Colors.white,
             ),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (BuildContext context) => Settings(),
-                ),
-              );
+              push(Settings());
             },
           ),
           IconButton(
@@ -124,70 +113,52 @@ class _HomeState extends State<Home> {
               color: Colors.white,
             ),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (BuildContext context) => ProfilePage(),
-                ),
-              );
+              push(ProfilePage());
             },
           ),
         ],
       ),
-      body: _isLoading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : _partners.length > 0
-              ? ListView.builder(
-                  itemCount: _partners.length,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemBuilder: (context, i) => InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PartnerDetails(
-                            data: _partners[i],
-                          ),
-                        ),
-                      );
-                    },
-                    child: Column(
-                      children: <Widget>[
-                        Divider(
-                          height: 10.0,
-                        ),
-                        ListTile(
-                          leading: CircleAvatar(
-                            foregroundColor: Theme.of(context).primaryColor,
-                            backgroundColor: Colors.grey,
-                            backgroundImage:
-                                NetworkImage(_partners[i].imageUrl),
-                          ),
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                _partners[i].name,
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          subtitle: Container(
-                            padding: const EdgeInsets.only(top: 5.0),
-                            child: Text(
-                              _partners[i].email,
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 15.0),
-                            ),
-                          ),
-                        )
-                      ],
+      body: _partners.length > 0
+          ? ListView.builder(
+              itemCount: _partners.length,
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemBuilder: (context, i) => InkWell(
+                onTap: () {
+                  push(PartnerDetails(data: _partners[i]));
+                },
+                child: Column(
+                  children: <Widget>[
+                    Divider(
+                      height: 10.0,
                     ),
-                  ),
-                )
-              : emptyView,
+                    ListTile(
+                      leading: CircleAvatar(
+                        foregroundColor: Theme.of(context).primaryColor,
+                        backgroundColor: Colors.grey,
+                        backgroundImage: NetworkImage(_partners[i].imageUrl),
+                      ),
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            _partners[i].name,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      subtitle: Container(
+                        padding: const EdgeInsets.only(top: 5.0),
+                        child: Text(
+                          _partners[i].email,
+                          style: TextStyle(color: Colors.grey, fontSize: 15.0),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            )
+          : emptyView,
     );
   }
 }

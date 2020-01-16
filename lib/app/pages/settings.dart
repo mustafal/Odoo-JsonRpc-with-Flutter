@@ -1,32 +1,33 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:odoo_client/app/data/services/odoo_api.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:odoo_client/app/data/services/globals.dart';
+import 'package:odoo_client/app/data/services/odoo_api.dart';
+import 'package:odoo_client/app/utility/constant.dart';
+import 'package:odoo_client/app/utility/strings.dart';
+import 'package:odoo_client/base.dart';
+
+import 'login.dart';
 
 class Settings extends StatefulWidget {
   @override
   _SettingsState createState() => _SettingsState();
 }
 
-class _SettingsState extends State<Settings> {
+class _SettingsState extends Base<Settings> {
   TextEditingController _urlCtrler = new TextEditingController();
-  Odoo _odoo;
   String odooURL = "";
 
   @override
   void initState() {
     super.initState();
-    _checkFirstTime();
+    getOdooInstance().then((odoo) {
+      _checkFirstTime();
+    });
   }
 
   _checkFirstTime() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getString("odooUrl") != null) {
+    if (getURL() != null) {
       setState(() {
-        _urlCtrler.text = prefs.getString("odooUrl");
-        odooURL = prefs.getString("odooUrl");
+        _urlCtrler.text = odooURL = getURL();
       });
     }
   }
@@ -34,6 +35,7 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: Text("Settings"),
       ),
@@ -79,14 +81,17 @@ class _SettingsState extends State<Settings> {
         !url.toLowerCase().contains("https://")) {
       url = "http://" + url;
     }
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     if (url.length > 0 && url != " ") {
-      _odoo = Odoo(url: url);
-      _odoo.getDatabases().then((http.Response res) {
-        prefs.setString("odooUrl", url);
-        _showLogoutMessage("Setting Saved! Please Login!");
-      }).catchError((error) {
-        _showMessage("Can't connect to the server! Please enter valid URL");
+      isConnected().then((isInternet) {
+        if (isInternet) {
+          odoo = new Odoo(url: url);
+          odoo.getDatabases().then((http.Response res) {
+            saveOdooUrl(url);
+            _showLogoutMessage(Strings.loginAgainMessage);
+          }).catchError((error) {
+            _showMessage(Strings.invalidUrlMessage);
+          });
+        }
       });
     } else {
       _showMessage("Please enter valid URL");
@@ -178,15 +183,9 @@ class _SettingsState extends State<Settings> {
   }
 
   _clearPrefs() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    _odoo = Odoo(url: odooURL);
-    _odoo.destroy();
-    preferences.remove(Globals().loginPrefName);
-    preferences.remove("session");
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/login',
-      (_) => false,
-    );
+    odoo.destroy();
+    preferences.remove(Constants.USER_PREF);
+    preferences.remove(Constants.SESSION);
+    pushAndRemoveUntil(Login());
   }
 }

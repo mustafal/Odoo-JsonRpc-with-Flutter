@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:odoo_client/app/utility/constant.dart';
 import 'package:uuid/uuid.dart';
 import 'odoo_response.dart';
 import 'odoo_version.dart';
@@ -50,7 +51,7 @@ class Odoo {
   }
 
   // Authenticate user
-  Future<OdooResponse> authenticate(
+  Future<http.Response> authenticate(
       String username, String password, String database) async {
     var url = createPath("/web/session/authenticate");
     var params = {
@@ -59,7 +60,7 @@ class Odoo {
       "password": password,
       "context": {}
     };
-    final response = await callRequest(url, createPayload(params));
+    final response = await callDbRequest(url, createPayload(params));
     return response;
   }
 
@@ -187,18 +188,14 @@ class Odoo {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _headers["Content-type"] = "application/json; charset=UTF-8";
     _headers["Cookie"] = prefs.getString("session");
-    /*print("------------------------------------------->>>");
+    print("------------------------------------------->>>");
     print("REQUEST: ${url}");
-    print("PAYLOD : ${payload}");
-    print("HEADERS: ${_headers}");
-    print("------------------------------------------->>>");*/
+    print("------------------------------------------->>>");
     final response = await _client.post(url, body: body, headers: _headers);
     _updateCookies(response);
-    /*print("<<<<============================================");
-    print("STATUS_C: ${response.statusCode}");
-    print("RESPONSE HEADERS : ${response.headers}");
+    print("<<<<============================================");
     print("RESPONSE: ${response.body}");
-    print("<<<<============================================");*/
+    print("<<<<============================================");
     return new OdooResponse(json.decode(response.body), response.statusCode);
   }
 
@@ -207,22 +204,14 @@ class Odoo {
     var body = json.encode(payload);
     _headers["Content-type"] = "application/json; charset=UTF-8";
     _headers["Cookie"] = prefs.getString("session");
-/*
-    print("-------callDummyRequest-----sessionId-------$_sessionId");
     print("------------------------------------------->>>>");
     print("REQUEST: $url");
-    print("PAYLOD : $payload");
-    print("HEADERS: $_headers");
-    print("------------------------------------------->>>>");*/
+    print("------------------------------------------->>>>");
     final response = await _client.post(url, body: body, headers: _headers);
     _updateCookies(response);
-
-    /* print("<<<<============================================");
-    print("STATUS_C: ${response.statusCode}");
-    print("RESPONSE: ${response.body}");
-    print("RESPONSE HEADERS : ${response.headers}");
     print("<<<<============================================");
-*/
+    print("RESPONSE: ${response.body}");
+    print("<<<<============================================");
     return response;
   }
 
@@ -231,7 +220,7 @@ class Odoo {
     String rawCookie = response.headers['set-cookie'];
     if (rawCookie != null) {
       _headers['Cookie'] = rawCookie;
-      prefs.setString("session", rawCookie);
+      prefs.setString(Constants.SESSION, rawCookie);
     }
   }
 

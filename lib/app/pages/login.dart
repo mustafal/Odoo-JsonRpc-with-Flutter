@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:odoo_client/app/data/pojo/user.dart';
 import 'package:odoo_client/app/data/services/globals.dart';
 import 'package:odoo_client/app/data/services/odoo_api.dart';
 import 'package:odoo_client/app/data/services/odoo_response.dart';
 import 'package:odoo_client/app/data/services/utils.dart';
+import 'package:odoo_client/app/pages/home.dart';
 import 'package:odoo_client/app/pages/settings.dart';
+import 'package:odoo_client/app/utility/strings.dart';
+import 'package:odoo_client/base.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -13,122 +17,103 @@ class Login extends StatefulWidget {
   _LoginState createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> {
-  static String odoo_URL;
+class _LoginState extends Base<Login> {
+  String odooURL;
   String _selectedProtocol = "http";
   String _selectedDb;
   String _email;
   String _pass;
-  Globals _globals;
   List<String> _dbList = [];
   List dynamicList = [];
   bool isCorrectURL = false;
   bool isDBFilter = false;
-  Odoo _odoo;
-  bool isFirstTime = true;
   TextEditingController _urlCtrler = new TextEditingController();
   TextEditingController _emailCtrler = new TextEditingController();
   TextEditingController _passCtrler = new TextEditingController();
 
-  _saveUser(String username) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    preferences.setString(_globals.loginPrefName, username);
-  }
-
-  _checkFirstTime() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      if (prefs.getString("odooUrl") != null) {
-        isFirstTime = false;
-        _checkURL(prefs.getString("odooUrl"));
-        odoo_URL = prefs.getString("odooUrl");
-      }
-    });
+  _checkFirstTime() {
+    if (getURL() != null) {
+      odooURL = getURL();
+      _checkURL();
+    }
   }
 
   _login() {
-    _email = _emailCtrler.text;
-    _pass = _passCtrler.text;
-    _odoo = Odoo(url: _globals.url);
-    _odoo.authenticate(_email, _pass, _selectedDb).then(
-      (OdooResponse auth) {
-        if (!auth.hasError()) {
-          Map jsonUser = auth.getResult();
-          jsonUser["url"] = _globals.url;
-          _saveUser(json.encode(jsonUser));
-          Navigator.of(context).pushReplacementNamed("/home");
-        } else {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (BuildContext ctxt) {
-              return AlertDialog(
-                title: Text(
-                  "Authentication Failed",
-                  style: TextStyle(
-                    fontFamily: "Montserrat",
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                content: Text(
-                  "Invalid Username or Password",
-                  style: TextStyle(
-                    fontFamily: "Montserrat",
-                    fontSize: 18,
-                    color: Colors.black,
-                  ),
-                ),
-                actions: <Widget>[
-                  FlatButton(
-                    child:
-                        Text("Ok", style: TextStyle(fontFamily: "Montserrat")),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  )
-                ],
-              );
+    if (isValid()) {
+      isConnected().then((isInternet) {
+        if (isInternet) {
+          showLoading();
+          odoo.authenticate(_email, _pass, _selectedDb).then(
+                (http.Response auth) {
+              if (auth.body != null) {
+                hideLoadingSuccess("Logged in successfully");
+                User user = User.fromJson(jsonDecode(auth.body));
+                saveUser(json.encode(user));
+                saveOdooUrl(odooURL);
+                pushReplacement(Home());
+              } else {
+                showMessage("Authentication Failed",
+                    "Please Enter Valid Email or Password");
+              }
             },
           );
         }
-      },
-    );
+      });
+    } else {
+      showMessage("Warning", "Email or Password may be remain empty!!");
+    }
   }
 
-  _checkURL(String odooUrl) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    _odoo = Odoo(url: odooUrl);
-    await _odoo.getDatabases().then(
-      (http.Response res) {
-        setState(
-          () {
-            isCorrectURL = true;
-            _globals = new Globals(url: odooUrl);
-            dynamicList = json.decode(res.body)['result'] as List;
-            preferences.setString("odooUrl", odooUrl);
-            dynamicList.forEach((db) => _dbList.add(db));
-            _selectedDb = _dbList[0];
-            if (_dbList.length == 1) {
-              isDBFilter = true;
-            } else {
-              isDBFilter = false;
+  _checkURL() {
+    isConnected().then((isInternet) {
+      if (isInternet) {
+        showLoading();
+        // Init Odoo URL when URL is not saved
+        odoo = new Odoo(url: odooURL);
+        odoo.getDatabases().then(
+                (http.Response res) {
+              setState(
+                    () {
+                  hideLoadingSuccess("Odoo Server Connected");
+                  isCorrectURL = true;
+                  dynamicList = json.decode(res.body)['result'] as List;
+                  saveOdooUrl(odooURL);
+                  dynamicList.forEach((db) => _dbList.add(db));
+                  _selectedDb = _dbList[0];
+                  if (_dbList.length == 1) {
+                    isDBFilter = true;
+                  } else {
+                    isDBFilter = false;
+                  }
+                },
+              );
             }
+        ).catchError(
+              (e) {
+            showMessage("Warning", "Invalid URL");
           },
         );
-      },
-    ).catchError(
-      (e) {
-        Utils(context: context).showMessage("Warning", "Invalid URL");
-      },
-    );
+      }
+    });
   }
 
   @override
   void initState() {
     super.initState();
-    _checkFirstTime();
+
+    getOdooInstance().then((odoo) {
+      _checkFirstTime();
+    });
+  }
+
+  bool isValid() {
+    _email = _emailCtrler.text;
+    _pass = _passCtrler.text;
+    if (_email.length > 0 && _pass.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @override
@@ -142,8 +127,8 @@ class _LoginState extends State<Login> {
         ),
         onPressed: !isCorrectURL
             ? () {
-                odoo_URL = _selectedProtocol + "://" + _urlCtrler.text;
-                _checkURL(odoo_URL);
+                odooURL = _selectedProtocol + "://" + _urlCtrler.text;
+                _checkURL();
               }
             : null,
         padding: EdgeInsets.all(12),
@@ -323,6 +308,7 @@ class _LoginState extends State<Login> {
     );
 
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: Text(
           "Login",
@@ -339,17 +325,16 @@ class _LoginState extends State<Login> {
         child: ListView(
           padding: EdgeInsets.all(10.0),
           children: <Widget>[
-            isFirstTime ? checkURLWidget : SizedBox(height: 0.0),
+            !isLoggedIn() ? checkURLWidget : SizedBox(height: 0.0),
             loginWidget,
           ],
         ),
       ),
-      floatingActionButton: !isFirstTime
+      floatingActionButton: isLoggedIn()
           ? FloatingActionButton(
               child: Icon(Icons.settings),
               onPressed: () {
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => Settings()));
+                pushReplacement(Settings());
               },
             )
           : SizedBox(height: 0.0),

@@ -1,11 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:odoo_client/app/data/pojo/partners.dart';
-import 'package:odoo_client/app/data/services/globals.dart';
 import 'package:odoo_client/app/data/services/odoo_api.dart';
 import 'package:odoo_client/app/data/services/odoo_response.dart';
-import 'package:odoo_client/app/data/services/utils.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:odoo_client/app/utility/strings.dart';
+import 'package:odoo_client/base.dart';
 
 class PartnerDetails extends StatefulWidget {
   PartnerDetails({this.data});
@@ -16,9 +14,8 @@ class PartnerDetails extends StatefulWidget {
   _PartnerDetailsState createState() => _PartnerDetailsState();
 }
 
-class _PartnerDetailsState extends State<PartnerDetails> {
+class _PartnerDetailsState extends Base<PartnerDetails> {
   var refreshkey = GlobalKey<RefreshIndicatorState>();
-  var odoo;
   String name = "";
   String image_URL = "";
   String email = "";
@@ -37,34 +34,25 @@ class _PartnerDetailsState extends State<PartnerDetails> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     _partner = widget.data;
 
-    Utils().isConnected().then((isInternet) {
-      if (!isInternet) {
-        Scaffold.of(context).showSnackBar(
-            new SnackBar(content: Text("No Internet Connection!")));
-      }
+    getOdooInstance().then((odoo) {
+      _getProfileData();
     });
-
-    print("----------------name------------------${_partner.name}");
-    _getProfileData();
   }
 
   _getProfileData() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    if (preferences.getString(Globals().loginPrefName) != null) {
-      var user = jsonDecode(preferences.getString(Globals().loginPrefName));
-      odoo = new Odoo(url: user['url'])
-        ..searchRead("res.partner", [
+    isConnected().then((isInternet) {
+      if (isInternet) {
+        odoo.searchRead(Strings.res_partner, [
           ["id", "=", _partner.id]
         ], []).then(
-          (OdooResponse res) {
+              (OdooResponse res) {
             if (!res.hasError()) {
               setState(() {
-                String session = preferences.getString("session");
+                String session = getSession();
                 session = session.split(",")[0].split(";")[0];
                 final result = res.getResult()['records'][0];
                 name = result["name"];
@@ -76,19 +64,16 @@ class _PartnerDetailsState extends State<PartnerDetails> {
                 street = result['street'] is! bool ? result['street'] : "";
                 street2 = result['street2'] is! bool ? result['street2'] : "";
                 city = result['city'] is! bool ? result['city'] : "";
-                state_id =
-                    result['state_id'] is! bool ? result['state_id'][1] : "";
+                state_id = result['state_id'] is! bool ? result['state_id'][1] : "";
                 zip = result['zip'] is! bool ? result['zip'] : "";
                 title = result['title'] is! bool ? result['title'][1] : "N/A";
-                website =
-                    result['website'] is! bool ? result['website'] : "N/A";
+                website = result['website'] is! bool ? result['website'] : "N/A";
                 jobposition =
-                    result['function'] is! bool ? result['function'] : "N/A";
-                country = result["country_id"] is! bool
-                    ? result["country_id"][1]
-                    : "N/A";
+                result['function'] is! bool ? result['function'] : "N/A";
+                country =
+                result["country_id"] is! bool ? result["country_id"][1] : "N/A";
 
-                image_URL = user['url'] +
+                image_URL = getURL() +
                     "/web/content?model=res.partner&field=image&" +
                     session +
                     "&id=" +
@@ -97,7 +82,8 @@ class _PartnerDetailsState extends State<PartnerDetails> {
             }
           },
         );
-    }
+      }
+    });
   }
 
   @override
@@ -393,6 +379,7 @@ class _PartnerDetailsState extends State<PartnerDetails> {
     );
 
     return Scaffold(
+      key: scaffoldKey,
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
