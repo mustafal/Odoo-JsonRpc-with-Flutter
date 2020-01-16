@@ -17,7 +17,6 @@ abstract class Base<T extends StatefulWidget> extends State<T> {
   SharedPreferences preferences;
   User user;
   GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
-  //bool isInternet;
 
   /*
    * Create Odoo Object with URL, SessionID and UserID.
@@ -26,7 +25,6 @@ abstract class Base<T extends StatefulWidget> extends State<T> {
    * Initialize User Data as User model and use it anywhere
    */
   Future<Odoo> getOdooInstance() async {
-    //isInternet = await isConnected();
     preferences = await SharedPreferences.getInstance();
     String userPref = preferences.getString(Constants.USER_PREF); // User Data
     String odooUrl = getURL(); // Get OdooURL from SharedPreferences
@@ -73,35 +71,34 @@ abstract class Base<T extends StatefulWidget> extends State<T> {
     if (preferences != null) preferences.setString(Constants.ODOO_URL, url);
   }
 
+  // This method is about push to new widget and replace current widget
   pushReplacement(StatefulWidget screenName) {
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => screenName));
   }
 
+  // This method is about push to new widget but don't replace current widget
   push(StatefulWidget screenName) {
     Navigator.push(
-      context,
-      MaterialPageRoute(builder: (BuildContext context) => screenName)
+        context,
+        MaterialPageRoute(builder: (BuildContext context) => screenName)
     );
   }
 
+  // This method is about push to new widget and remove all previous widget
   pushAndRemoveUntil(StatefulWidget screenName) {
     Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (BuildContext context) => screenName), (_) => false);
+        context,
+        MaterialPageRoute(builder: (BuildContext context) => screenName), (_) => false);
   }
 
+  // Show loading with optional message params
   showLoading({String msg}) {
     if (msg != null) {
       EasyLoading.show(status: msg);
     } else {
       EasyLoading.show();
     }
-  }
-
-  showSnackBar(String msg) {
-    scaffoldKey.currentState.showSnackBar(new SnackBar(content: Text(msg)));
-    hideLoading();
   }
 
   hideLoadingSuccess(String msg) {
@@ -116,6 +113,16 @@ abstract class Base<T extends StatefulWidget> extends State<T> {
 
   hideLoading() {
     EasyLoading.dismiss();
+  }
+
+  /*
+   * Show Snackbar with Global scaffold key
+   * scaffoldKey is defined globally as snackbar do not find context of Scaffold widget
+   * hideLoading is hide the loader when snackbar message is showing to UI
+   */
+  showSnackBar(String msg) {
+    scaffoldKey.currentState.showSnackBar(new SnackBar(content: Text(msg)));
+    hideLoading();
   }
 
   showMessage(String title, String message) {
@@ -203,6 +210,7 @@ abstract class Base<T extends StatefulWidget> extends State<T> {
     }
   }
 
+  // Check Internet Connection Async method with Snackbar message.
   Future<bool> isConnected() async {
     try {
       final result = await InternetAddress.lookup('google.com');

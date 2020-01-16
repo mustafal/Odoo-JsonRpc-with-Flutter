@@ -59,7 +59,7 @@ class _HomeState extends Base<Home> {
   void initState() {
     super.initState();
 
-    getOdooInstance().then((odoo) async {
+    getOdooInstance().then((odoo) {
       _getPartners();
     });
   }
