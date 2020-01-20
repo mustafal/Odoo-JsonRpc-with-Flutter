@@ -39,24 +39,25 @@ class _AppState extends Base<App> {
   Widget build(BuildContext context) {
     return FlutterEasyLoading(
         child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: Strings.app_title,
-          theme: ThemeData(
-            primarySwatch: Colors.indigo,
-            fontFamily: "Montserrat",
-          ),
-          home: FutureBuilder<Odoo>(
-            future: getOdooInstance(),
-            builder: (BuildContext context, AsyncSnapshot<Odoo> snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.done:
-                  return isLoggedIn() ? Home() : Login();
-                default:
-                  return null;
-              }
-            },
-          )
-        )
-    );
+            debugShowCheckedModeBanner: false,
+            title: Strings.app_title,
+            theme: ThemeData(
+              primarySwatch: Colors.indigo,
+              fontFamily: "Montserrat",
+            ),
+            home: FutureBuilder<Odoo>(
+              future: getOdooInstance(),
+              builder: (BuildContext context, AsyncSnapshot<Odoo> snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.done:
+                    return isLoggedIn() ? Home() : Login();
+                  default:
+                    return new Container(
+                      decoration: new BoxDecoration(color: Colors.white),
+                      child: new Center(child: CircularProgressIndicator()),
+                    );
+                }
+              },
+            )));
   }
 }
