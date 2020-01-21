@@ -44,7 +44,7 @@ class _LoginState extends Base<Login> {
         if (isInternet) {
           showLoading();
           odoo.authenticate(_email, _pass, _selectedDb).then(
-                (http.Response auth) {
+            (http.Response auth) {
               if (auth.body != null) {
                 hideLoadingSuccess("Logged in successfully");
                 User user = User.fromJson(jsonDecode(auth.body));
@@ -59,8 +59,6 @@ class _LoginState extends Base<Login> {
           );
         }
       });
-    } else {
-      showMessage("Warning", "Email or Password may be remain empty!!");
     }
   }
 
@@ -70,26 +68,24 @@ class _LoginState extends Base<Login> {
         showLoading();
         // Init Odoo URL when URL is not saved
         odoo = new Odoo(url: odooURL);
-        odoo.getDatabases().then(
-                (http.Response res) {
-              setState(
-                    () {
-                  hideLoadingSuccess("Odoo Server Connected");
-                  isCorrectURL = true;
-                  dynamicList = json.decode(res.body)['result'] as List;
-                  saveOdooUrl(odooURL);
-                  dynamicList.forEach((db) => _dbList.add(db));
-                  _selectedDb = _dbList[0];
-                  if (_dbList.length == 1) {
-                    isDBFilter = true;
-                  } else {
-                    isDBFilter = false;
-                  }
-                },
-              );
-            }
-        ).catchError(
-              (e) {
+        odoo.getDatabases().then((http.Response res) {
+          setState(
+            () {
+              hideLoadingSuccess("Odoo Server Connected");
+              isCorrectURL = true;
+              dynamicList = json.decode(res.body)['result'] as List;
+              saveOdooUrl(odooURL);
+              dynamicList.forEach((db) => _dbList.add(db));
+              _selectedDb = _dbList[0];
+              if (_dbList.length == 1) {
+                isDBFilter = true;
+              } else {
+                isDBFilter = false;
+              }
+            },
+          );
+        }).catchError(
+          (e) {
             showMessage("Warning", "Invalid URL");
           },
         );
@@ -112,6 +108,7 @@ class _LoginState extends Base<Login> {
     if (_email.length > 0 && _pass.length > 0) {
       return true;
     } else {
+      showSnackBar("Please enter valid email and password");
       return false;
     }
   }
@@ -127,6 +124,10 @@ class _LoginState extends Base<Login> {
         ),
         onPressed: !isCorrectURL
             ? () {
+                if (_urlCtrler.text.length == 0) {
+                  showSnackBar("Please enter valid URL");
+                  return;
+                }
                 odooURL = _selectedProtocol + "://" + _urlCtrler.text;
                 _checkURL();
               }

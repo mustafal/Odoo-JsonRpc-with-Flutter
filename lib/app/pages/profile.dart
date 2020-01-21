@@ -45,7 +45,7 @@ class _ProfilePageState extends Base<ProfilePage> {
                 final result = res.getResult()['records'][0];
                 name = result['name'] is! bool ? result['name'] : "";
                 image_URL = getURL() +
-                    "/web/content?model=res.users&field=image&" +
+                    "/web/image?model=res.users&field=image&" +
                     session +
                     "&id=" +
                     getUID().toString();
@@ -83,9 +83,9 @@ class _ProfilePageState extends Base<ProfilePage> {
                 street2 = result['street2'] is! bool ? result['street2'] : "";
                 city = result['city'] is! bool ? result['city'] : "";
                 state_id =
-                result['state_id'][1] is! bool ? result['state_id'][1] : "";
+                result['state_id'] is! bool ? result['state_id'][1] : "";
                 zip = result['zip'] is! bool ? result['zip'] : "";
-                title = result['title'][1] is! bool ? result['title'][1] : "N/A";
+                title = result['title'] is! bool ? result['title'][1] : "N/A";
                 website = result['website'] is! bool ? result['website'] : "N/A";
                 jobposition =
                 result['function'] is! bool ? result['function'] : "N/A";

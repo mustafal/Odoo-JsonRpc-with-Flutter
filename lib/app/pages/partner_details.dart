@@ -74,7 +74,7 @@ class _PartnerDetailsState extends Base<PartnerDetails> {
                 result["country_id"] is! bool ? result["country_id"][1] : "N/A";
 
                 image_URL = getURL() +
-                    "/web/content?model=res.partner&field=image&" +
+                    "/web/image?model=res.partner&field=image&" +
                     session +
                     "&id=" +
                     _partner.id.toString();

@@ -22,7 +22,7 @@ class _HomeState extends Base<Home> {
     isConnected().then((isInternet) {
       if (isInternet) {
         showLoading();
-        odoo.searchRead(Strings.res_partner, [], []).then(
+        odoo.searchRead(Strings.res_partner, [], ['email', 'name', 'phone']).then(
               (OdooResponse res) {
             if (!res.hasError()) {
               setState(() {
@@ -37,7 +37,7 @@ class _HomeState extends Base<Home> {
                       name: i["name"],
                       phone: i["phone"] is! bool ? i["phone"] : "N/A",
                       imageUrl: getURL() +
-                          "/web/content?model=res.partner&field=image&" +
+                          "/web/image?model=res.partner&field=image&" +
                           session +
                           "&id=" +
                           i["id"].toString(),
