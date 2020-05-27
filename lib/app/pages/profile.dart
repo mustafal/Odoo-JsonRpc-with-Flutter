@@ -1,13 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:odoo_client/app/data/services/odoo_api.dart';
 import 'package:odoo_client/app/data/services/odoo_response.dart';
-import 'package:odoo_client/app/data/services/utils.dart';
 import 'package:odoo_client/app/utility/constant.dart';
 import 'package:odoo_client/app/utility/strings.dart';
 import 'package:odoo_client/base.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:odoo_client/app/data/services/globals.dart';
 
 import 'login.dart';
 

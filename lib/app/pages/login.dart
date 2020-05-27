@@ -46,11 +46,17 @@ class _LoginState extends Base<Login> {
           odoo.authenticate(_email, _pass, _selectedDb).then(
             (http.Response auth) {
               if (auth.body != null) {
-                hideLoadingSuccess("Logged in successfully");
                 User user = User.fromJson(jsonDecode(auth.body));
-                saveUser(json.encode(user));
-                saveOdooUrl(odooURL);
-                pushReplacement(Home());
+                if (user != null && user.result != null) {
+                  print(auth.body.toString());
+                  hideLoadingSuccess("Logged in successfully");
+                  saveUser(json.encode(user));
+                  saveOdooUrl(odooURL);
+                  pushReplacement(Home());
+                } else {
+                  showMessage("Authentication Failed",
+                      "Please Enter Valid Email or Password");
+                }
               } else {
                 showMessage("Authentication Failed",
                     "Please Enter Valid Email or Password");
@@ -326,7 +332,7 @@ class _LoginState extends Base<Login> {
         child: ListView(
           padding: EdgeInsets.all(10.0),
           children: <Widget>[
-            !isLoggedIn() ? checkURLWidget : SizedBox(height: 0.0),
+            getURL() == null ? checkURLWidget : SizedBox(height: 0.0),
             loginWidget,
           ],
         ),
