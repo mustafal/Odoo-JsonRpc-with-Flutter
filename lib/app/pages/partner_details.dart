@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:odoo_client/app/data/pojo/partners.dart';
-import 'package:odoo_client/app/data/services/odoo_api.dart';
-import 'package:odoo_client/app/data/services/odoo_response.dart';
-import 'package:odoo_client/app/utility/strings.dart';
-import 'package:odoo_client/base.dart';
+import 'package:odoo_json_rpc_flutter/app/data/pojo/partners.dart';
+import 'package:odoo_json_rpc_flutter/app/data/services/odoo_response.dart';
+import 'package:odoo_json_rpc_flutter/app/utility/strings.dart';
+import 'package:odoo_json_rpc_flutter/base.dart';
 
 class PartnerDetails extends StatefulWidget {
   PartnerDetails({this.data});
@@ -49,7 +48,7 @@ class _PartnerDetailsState extends Base<PartnerDetails> {
         odoo.searchRead(Strings.res_partner, [
           ["id", "=", _partner.id]
         ], []).then(
-              (OdooResponse res) {
+          (OdooResponse res) {
             if (!res.hasError()) {
               setState(() {
                 String session = getSession();
@@ -64,14 +63,17 @@ class _PartnerDetailsState extends Base<PartnerDetails> {
                 street = result['street'] is! bool ? result['street'] : "";
                 street2 = result['street2'] is! bool ? result['street2'] : "";
                 city = result['city'] is! bool ? result['city'] : "";
-                state_id = result['state_id'] is! bool ? result['state_id'][1] : "";
+                state_id =
+                    result['state_id'] is! bool ? result['state_id'][1] : "";
                 zip = result['zip'] is! bool ? result['zip'] : "";
                 title = result['title'] is! bool ? result['title'][1] : "N/A";
-                website = result['website'] is! bool ? result['website'] : "N/A";
+                website =
+                    result['website'] is! bool ? result['website'] : "N/A";
                 jobposition =
-                result['function'] is! bool ? result['function'] : "N/A";
-                country =
-                result["country_id"] is! bool ? result["country_id"][1] : "N/A";
+                    result['function'] is! bool ? result['function'] : "N/A";
+                country = result["country_id"] is! bool
+                    ? result["country_id"][1]
+                    : "N/A";
 
                 image_URL = getURL() +
                     "/web/image?model=res.partner&field=image&" +

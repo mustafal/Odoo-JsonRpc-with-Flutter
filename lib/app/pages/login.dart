@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:odoo_client/app/data/pojo/user.dart';
-import 'package:odoo_client/app/data/services/globals.dart';
-import 'package:odoo_client/app/data/services/odoo_api.dart';
-import 'package:odoo_client/app/data/services/odoo_response.dart';
-import 'package:odoo_client/app/data/services/utils.dart';
-import 'package:odoo_client/app/pages/home.dart';
-import 'package:odoo_client/app/pages/settings.dart';
-import 'package:odoo_client/app/utility/strings.dart';
-import 'package:odoo_client/base.dart';
+import 'package:odoo_json_rpc_flutter/app/data/pojo/user.dart';
+import 'package:odoo_json_rpc_flutter/app/data/services/odoo_api.dart';
+import 'package:odoo_json_rpc_flutter/app/pages/home.dart';
+import 'package:odoo_json_rpc_flutter/app/pages/settings.dart';
+import 'package:odoo_json_rpc_flutter/base.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';

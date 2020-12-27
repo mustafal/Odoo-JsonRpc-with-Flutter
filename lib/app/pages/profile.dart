@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:odoo_client/app/data/services/odoo_response.dart';
-import 'package:odoo_client/app/utility/constant.dart';
-import 'package:odoo_client/app/utility/strings.dart';
-import 'package:odoo_client/base.dart';
+import 'package:odoo_json_rpc_flutter/app/data/services/odoo_response.dart';
+import 'package:odoo_json_rpc_flutter/app/utility/constant.dart';
+import 'package:odoo_json_rpc_flutter/app/utility/strings.dart';
+import 'package:odoo_json_rpc_flutter/base.dart';
 
 import 'login.dart';
 
@@ -32,7 +32,7 @@ class _ProfilePageState extends Base<ProfilePage> {
         odoo.searchRead(Strings.res_users, [
           ["id", "=", getUID()]
         ], []).then(
-              (OdooResponse res) {
+          (OdooResponse res) {
             if (!res.hasError()) {
               setState(() {
                 String session = getSession();
@@ -68,7 +68,7 @@ class _ProfilePageState extends Base<ProfilePage> {
         odoo.searchRead("res.partner", [
           ["id", "=", user.result.partnerId] //model
         ], []).then(
-              (OdooResponse res) {
+          (OdooResponse res) {
             if (!res.hasError()) {
               setState(() {
                 final result = res.getResult()['records'][0];
@@ -78,12 +78,13 @@ class _ProfilePageState extends Base<ProfilePage> {
                 street2 = result['street2'] is! bool ? result['street2'] : "";
                 city = result['city'] is! bool ? result['city'] : "";
                 state_id =
-                result['state_id'] is! bool ? result['state_id'][1] : "";
+                    result['state_id'] is! bool ? result['state_id'][1] : "";
                 zip = result['zip'] is! bool ? result['zip'] : "";
                 title = result['title'] is! bool ? result['title'][1] : "N/A";
-                website = result['website'] is! bool ? result['website'] : "N/A";
+                website =
+                    result['website'] is! bool ? result['website'] : "N/A";
                 jobposition =
-                result['function'] is! bool ? result['function'] : "N/A";
+                    result['function'] is! bool ? result['function'] : "N/A";
               });
             }
           },

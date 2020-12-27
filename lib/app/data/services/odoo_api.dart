@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:odoo_client/app/utility/constant.dart';
+import 'package:odoo_json_rpc_flutter/app/utility/constant.dart';
+
 import 'package:uuid/uuid.dart';
 import 'odoo_response.dart';
 import 'odoo_version.dart';

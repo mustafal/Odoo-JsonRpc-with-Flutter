@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:odoo_client/app/data/services/odoo_api.dart';
-import 'package:odoo_client/app/utility/constant.dart';
-import 'package:odoo_client/app/utility/strings.dart';
-import 'package:odoo_client/base.dart';
+import 'package:odoo_json_rpc_flutter/app/data/services/odoo_api.dart';
+import 'package:odoo_json_rpc_flutter/app/utility/constant.dart';
+import 'package:odoo_json_rpc_flutter/app/utility/strings.dart';
+import 'package:odoo_json_rpc_flutter/base.dart';
 
 import 'login.dart';
 

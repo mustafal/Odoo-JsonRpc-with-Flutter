@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:odoo_client/app/data/pojo/partners.dart';
-import 'package:odoo_client/app/data/services/odoo_api.dart';
-import 'package:odoo_client/app/data/services/odoo_response.dart';
-import 'package:odoo_client/app/pages/partner_details.dart';
-import 'package:odoo_client/app/utility/strings.dart';
-import 'package:odoo_client/base.dart';
+import 'package:odoo_json_rpc_flutter/app/data/pojo/partners.dart';
+import 'package:odoo_json_rpc_flutter/app/data/services/odoo_response.dart';
+import 'package:odoo_json_rpc_flutter/app/pages/partner_details.dart';
+import 'package:odoo_json_rpc_flutter/app/utility/strings.dart';
+import 'package:odoo_json_rpc_flutter/base.dart';
 
 import 'profile.dart';
 import 'settings.dart';
@@ -22,8 +21,9 @@ class _HomeState extends Base<Home> {
     isConnected().then((isInternet) {
       if (isInternet) {
         showLoading();
-        odoo.searchRead(Strings.res_partner, [], ['email', 'name', 'phone']).then(
-              (OdooResponse res) {
+        odoo.searchRead(
+            Strings.res_partner, [], ['email', 'name', 'phone']).then(
+          (OdooResponse res) {
             if (!res.hasError()) {
               setState(() {
                 hideLoading();

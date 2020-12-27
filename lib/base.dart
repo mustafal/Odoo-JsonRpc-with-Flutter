@@ -3,7 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:loading/indicator/ball_pulse_indicator.dart';
+import 'package:loading/loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/data/pojo/user.dart';
@@ -12,7 +13,6 @@ import 'app/utility/constant.dart';
 import 'app/utility/strings.dart';
 
 abstract class Base<T extends StatefulWidget> extends State<T> {
-
   Odoo odoo;
   SharedPreferences preferences;
   User user;
@@ -64,7 +64,8 @@ abstract class Base<T extends StatefulWidget> extends State<T> {
   }
 
   saveUser(String userData) {
-    if (preferences != null) preferences.setString(Constants.USER_PREF, userData);
+    if (preferences != null)
+      preferences.setString(Constants.USER_PREF, userData);
   }
 
   saveOdooUrl(String url) {
@@ -73,46 +74,56 @@ abstract class Base<T extends StatefulWidget> extends State<T> {
 
   // This method is about push to new widget and replace current widget
   pushReplacement(StatefulWidget screenName) {
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => screenName));
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (context) => screenName));
   }
 
   // This method is about push to new widget but don't replace current widget
   push(StatefulWidget screenName) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(builder: (BuildContext context) => screenName)
-    );
+    Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) => screenName));
   }
 
   // This method is about push to new widget and remove all previous widget
   pushAndRemoveUntil(StatefulWidget screenName) {
     Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (BuildContext context) => screenName), (_) => false);
+        MaterialPageRoute(builder: (BuildContext context) => screenName),
+        (_) => false);
   }
 
   // Show loading with optional message params
   showLoading({String msg}) {
-    if (msg != null) {
-      EasyLoading.show(status: msg);
-    } else {
-      EasyLoading.show();
-    }
+    return Container(
+      color: Colors.lightBlue,
+      child: Center(
+        child: Loading(
+          indicator: BallPulseIndicator(),
+          size: 100.0,
+          color: Colors.pink,
+        ),
+      ),
+    );
+
+    // if (msg != null) {
+    //   EasyLoading.show(status: msg);
+    // } else {
+    //   EasyLoading.show();
+    // }
   }
 
   hideLoadingSuccess(String msg) {
-    EasyLoading.showSuccess(msg, duration: Duration(seconds: 2));
-    EasyLoading.dismiss();
+    // EasyLoading.showSuccess(msg, duration: Duration(seconds: 2));
+    // EasyLoading.dismiss();
   }
 
   hideLoadingError(String msg) {
-    EasyLoading.showError(msg, duration: Duration(seconds: 2));
-    EasyLoading.dismiss();
+    // EasyLoading.showError(msg, duration: Duration(seconds: 2));
+    // EasyLoading.dismiss();
   }
 
   hideLoading() {
-    EasyLoading.dismiss();
+    // EasyLoading.dismiss();
   }
 
   /*

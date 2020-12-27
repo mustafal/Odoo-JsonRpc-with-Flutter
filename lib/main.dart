@@ -1,9 +1,6 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:odoo_client/app/data/services/odoo_api.dart';
-
+import 'package:odoo_json_rpc_flutter/app/data/services/odoo_api.dart';
 import 'app/pages/home.dart';
 import 'app/pages/login.dart';
 import 'app/utility/strings.dart';
@@ -37,27 +34,29 @@ class _AppState extends Base<App> {
 
   @override
   Widget build(BuildContext context) {
-    return FlutterEasyLoading(
-        child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: Strings.app_title,
-            theme: ThemeData(
-              primarySwatch: Colors.indigo,
-              fontFamily: "Montserrat",
-            ),
-            home: FutureBuilder<Odoo>(
-              future: getOdooInstance(),
-              builder: (BuildContext context, AsyncSnapshot<Odoo> snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.done:
-                    return isLoggedIn() ? Home() : Login();
-                  default:
-                    return new Container(
-                      decoration: new BoxDecoration(color: Colors.white),
-                      child: new Center(child: CircularProgressIndicator()),
-                    );
-                }
-              },
-            )));
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: Strings.app_title,
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+        fontFamily: "Montserrat",
+      ),
+      home: FutureBuilder<Odoo>(
+        future: getOdooInstance(),
+        builder: (BuildContext context, AsyncSnapshot<Odoo> snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              return isLoggedIn() ? Home() : Login();
+            default:
+              return new Container(
+                decoration: new BoxDecoration(color: Colors.white),
+                child: new Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+          }
+        },
+      ),
+    );
   }
 }
