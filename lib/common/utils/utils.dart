@@ -4,6 +4,7 @@ import 'package:odoo_common_code_latest/common/api_factory/models/base_list.dart
 import 'package:odoo_common_code_latest/common/config/app_colors.dart';
 import 'package:odoo_common_code_latest/common/config/app_fonts.dart';
 import 'package:odoo_common_code_latest/common/config/app_images.dart';
+import 'package:odoo_common_code_latest/common/config/config.dart';
 import 'package:odoo_common_code_latest/common/config/localization/localize.dart';
 import 'package:odoo_common_code_latest/common/config/prefs/pref_utils.dart';
 import 'package:odoo_common_code_latest/common/widgets/log.dart';
@@ -284,4 +285,11 @@ showSessionDialog() {
       ],
     ),
   );
+}
+
+Future<String> getImageUrl(
+    {required String model, required String field, required String id}) async {
+  String session = await PrefUtils.getToken();
+  return Config.OdooDevURL +
+      "/web/image?model=$model&field=$field&$session&id=$id";
 }
