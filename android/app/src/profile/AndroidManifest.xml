@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mtfa.odoo_json_rpc_flutter">
+    package="com.mtfa.odooclient.odoo_common_code_latest">
     <!-- Flutter needs it to communicate with the running application
          to allow setting breakpoints, to provide hot reload, etc.
     -->
