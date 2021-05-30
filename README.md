@@ -1,7 +1,7 @@
 # Odoo Mobile Framework With Flutter
 Odoo Mobile framework with flutter
 
-This Project Supports **Odoo 10.0, 11.0, 12.0 Community and Enterprise Edition**. It may not work properly against older versions of Odoo.
+This Project Supports **All Odoo Community and Enterprise Editions**. It may not work properly against older versions of Odoo.
 
 # Supported Platforms
     -> Android

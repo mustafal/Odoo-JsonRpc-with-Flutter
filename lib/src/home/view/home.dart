@@ -8,8 +8,19 @@ import 'package:odoo_common_code_latest/common/widgets/log.dart';
 import 'package:odoo_common_code_latest/common/widgets/main_container.dart';
 import 'package:odoo_common_code_latest/src/home/controller/home_controller.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   final _homeController = Get.put(HomeController());
+
+  @override
+  void initState() {
+    super.initState();
+    _homeController.getPartners();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +28,14 @@ class Home extends StatelessWidget {
       isAppBar: true,
       appBarTitle: "Home",
       padding: 20.0,
+      actions: [
+        IconButton(
+          onPressed: () {
+            showLogoutDialog();
+          },
+          icon: Icon(Icons.exit_to_app),
+        )
+      ],
       child: Obx(
         () {
           return ListView.builder(
@@ -24,11 +43,6 @@ class Home extends StatelessWidget {
             physics: ScrollPhysics(),
             itemCount: _homeController.listOfPartners.length,
             itemBuilder: (context, index) {
-              // String imageUrl = getImageUrl(
-              //     model: "res.partner",
-              //     field: "image_512",
-              //     id: _homeController.listOfPartners[index].id.toString());
-              // Log(imageUrl);
               return ListTile(
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),

@@ -14,9 +14,8 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-  final TextEditingController _emailController =
-      TextEditingController(text: "admin");
-  final TextEditingController _passCtrl = TextEditingController(text: "admin");
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passCtrl = TextEditingController();
 
   @override
   void initState() {

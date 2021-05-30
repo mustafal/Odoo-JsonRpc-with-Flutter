@@ -7,6 +7,7 @@ import 'package:odoo_common_code_latest/common/utils/utils.dart';
 import 'package:odoo_common_code_latest/common/widgets/log.dart';
 import 'package:odoo_common_code_latest/src/authentication/controllers/signin_controller.dart';
 import 'package:odoo_common_code_latest/src/authentication/models/user_model.dart';
+import 'package:odoo_common_code_latest/src/authentication/views/signin.dart';
 import 'package:odoo_common_code_latest/src/home/view/home.dart';
 
 getVersionInfoAPI() {
@@ -30,17 +31,27 @@ getVersionInfoAPI() {
 }
 
 authenticationAPI(String email, String pass) {
-  showLoading();
   Api.authenticate(
     username: email,
     password: pass,
     database: Config.DB,
     onResponse: (UserModel response) {
-      hideLoading();
       currentUser.value = response;
       PrefUtils.setIsLoggedIn(true);
       PrefUtils.setUser(jsonEncode(response));
       Get.offAll(() => Home());
+    },
+    onError: (error, data) {
+      handleApiError(error);
+    },
+  );
+}
+
+logoutApi() {
+  Api.destroy(
+    onResponse: (response) {
+      PrefUtils.clearPrefs();
+      Get.offAll(() => SignIn());
     },
     onError: (error, data) {
       handleApiError(error);

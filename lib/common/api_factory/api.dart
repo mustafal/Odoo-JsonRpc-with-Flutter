@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:odoo_common_code_latest/common/api_factory/api_end_points.dart';
-import 'package:odoo_common_code_latest/common/api_factory/base_response.dart';
 import 'package:odoo_common_code_latest/common/api_factory/dio_factory.dart';
 import 'package:uuid/uuid.dart';
 import 'package:odoo_common_code_latest/common/config/prefs/pref_utils.dart';
@@ -86,6 +85,13 @@ class Api {
       required Map params,
       required OnResponse onResponse,
       required OnError onError}) async {
+    Future.delayed(Duration(microseconds: 1), () {
+      if (path != ApiEndPoints.getVersionInfo &&
+          path != ApiEndPoints.getDb &&
+          path != ApiEndPoints.getDb9 &&
+          path != ApiEndPoints.getDb10) showLoading();
+    });
+
     Response response;
     switch (method) {
       case HttpMethod.post:
@@ -129,6 +135,7 @@ class Api {
         break;
     }
 
+    hideLoading();
     if (response.data["success"] == 0) {
       onError(response.data["error"][0], {});
     } else {

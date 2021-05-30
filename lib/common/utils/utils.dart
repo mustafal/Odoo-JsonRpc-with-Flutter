@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:odoo_common_code_latest/common/api_factory/models/base_list.dart';
+import 'package:odoo_common_code_latest/common/api_factory/modules/authentication_module.dart';
 import 'package:odoo_common_code_latest/common/config/app_colors.dart';
 import 'package:odoo_common_code_latest/common/config/app_fonts.dart';
 import 'package:odoo_common_code_latest/common/config/app_images.dart';
@@ -279,6 +280,45 @@ showSessionDialog() {
           },
           child: Text(
             Localize.signin.tr,
+            style: AppFont.Body2_Regular(),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+showLogoutDialog() {
+  Get.dialog(
+    AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+      title: Text(
+        "Logout",
+        style: AppFont.Title_H4_Medium(),
+      ),
+      content: Text(
+        "Are you sure you want to logout?",
+        style: AppFont.Body2_Regular(),
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () async {
+            Get.back();
+          },
+          child: Text(
+            Localize.cancel.tr,
+            style: AppFont.Body2_Regular(),
+          ),
+        ),
+        TextButton(
+          onPressed: () async {
+            Get.back();
+            logoutApi();
+          },
+          child: Text(
+            "Logout",
             style: AppFont.Body2_Regular(),
           ),
         ),
