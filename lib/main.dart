@@ -1,62 +1,17 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:odoo_json_rpc_flutter/app/data/services/odoo_api.dart';
-import 'app/pages/home.dart';
-import 'app/pages/login.dart';
-import 'app/utility/strings.dart';
-import 'base.dart';
+import 'package:odoo_common_code_latest/common/api_factory/dio_factory.dart';
+import 'package:odoo_common_code_latest/common/app.dart';
+import 'package:odoo_common_code_latest/common/config/dependencies.dart';
+import 'package:odoo_common_code_latest/common/config/prefs/pref_utils.dart';
 
-class MyHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-  }
-}
-
-void main() {
-  HttpOverrides.global = new MyHttpOverrides();
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(App());
-}
 
-class App extends StatefulWidget {
-  @override
-  _AppState createState() => _AppState();
-}
+  // Controller dependencies which we use throughout the app
+  Dependencies.injectDependencies();
 
-class _AppState extends Base<App> {
-  @override
-  void initState() {
-    super.initState();
-  }
+  DioFactory.initialiseHeaders(await PrefUtils.getToken());
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: Strings.app_title,
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        fontFamily: "Montserrat",
-      ),
-      home: FutureBuilder<Odoo>(
-        future: getOdooInstance(),
-        builder: (BuildContext context, AsyncSnapshot<Odoo> snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return isLoggedIn() ? Home() : Login();
-            default:
-              return new Container(
-                decoration: new BoxDecoration(color: Colors.white),
-                child: new Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-          }
-        },
-      ),
-    );
-  }
+  bool isLoggedIn = await PrefUtils.getIsLoggedIn();
+  runApp(App(isLoggedIn));
 }
