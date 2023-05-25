@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+
 import 'en.dart';
 
 class AppTranslations extends Translations {

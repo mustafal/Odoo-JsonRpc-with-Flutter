@@ -26,7 +26,7 @@ class UserModel {
   int? companyId;
   int? partnerId;
   String? webBaseUrl;
-  String? showEffect;
+  bool? showEffect;
   bool? displaySwitchCompanyMenu;
   int? maxTimeBetweenKeysInMs;
   bool? outOfOfficeMessage;
@@ -89,4 +89,3 @@ class Currency {
         "digits": List<dynamic>.from(digits!.map((x) => x)),
       };
 }
-

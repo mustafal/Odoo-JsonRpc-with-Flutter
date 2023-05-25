@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:odoo_common_code_latest/common/config/app_colors.dart';
 import 'package:odoo_common_code_latest/common/utils/utils.dart';
-import 'package:odoo_common_code_latest/common/widgets/log.dart';
 import 'package:odoo_common_code_latest/common/widgets/main_container.dart';
 import 'package:odoo_common_code_latest/src/home/controller/home_controller.dart';
 
