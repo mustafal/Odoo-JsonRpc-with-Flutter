@@ -14,16 +14,16 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.3
-  intl: ^0.17.0
-  device_info: ^2.0.2
-  dio: ^4.0.0
-  shared_preferences: ^2.0.6
-  get: ^4.1.4
+  cupertino_icons: ^1.0.5
+  intl: ^0.18.0
+  device_info_plus: ^9.0.1
+  dio: ^5.1.2
+  shared_preferences: ^2.1.1
+  get: ^4.6.5
   action_broadcast: ^3.0.1
-  country_code_picker: ^2.0.1
-  path_provider: ^2.0.2
-  cached_network_image: ^3.0.0
+  country_code_picker: ^3.0.0
+  path_provider: ^2.0.15
+  cached_network_image: ^3.2.3
 
 
 dev_dependencies:

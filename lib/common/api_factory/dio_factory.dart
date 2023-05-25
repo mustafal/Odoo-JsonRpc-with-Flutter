@@ -1,7 +1,7 @@
 import 'dart:developer' show log;
 import 'dart:io';
-import 'package:device_info/device_info.dart';
-import 'package:dio/adapter.dart';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:odoo_common_code_latest/common/api_factory/api.dart';
@@ -61,9 +61,9 @@ class DioFactory {
           HttpHeaders.authorizationHeader: _authorization,
           'Keep-Alive': Config.timeout,
         },
-        connectTimeout: Config.timeout,
-        receiveTimeout: Config.timeout,
-        sendTimeout: Config.timeout,
+        connectTimeout: Duration(seconds: Config.timeout),
+        receiveTimeout: Duration(seconds: Config.timeout),
+        sendTimeout: Duration(seconds: Config.timeout),
         contentType: Headers.jsonContentType,
       ),
     );
@@ -80,18 +80,5 @@ class DioFactory {
         },
       ));
     }
-    if (Config.selfSignedCert) {
-      final httpClientAdapter =
-          _dio!.httpClientAdapter as DefaultHttpClientAdapter;
-      httpClientAdapter.onHttpClientCreate = _onHttpClientCreate;
-    }
-  }
-
-  dynamic _onHttpClientCreate(HttpClient client) {
-    client.badCertificateCallback = _badCertificateCallback;
-  }
-
-  bool _badCertificateCallback(X509Certificate cert, String host, int port) {
-    return true;
   }
 }

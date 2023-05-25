@@ -2,13 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:odoo_common_code_latest/common/api_factory/api_end_points.dart';
 import 'package:odoo_common_code_latest/common/api_factory/dio_factory.dart';
-import 'package:uuid/uuid.dart';
+import 'package:odoo_common_code_latest/common/api_factory/models/version_info_response.dart';
+import 'package:odoo_common_code_latest/common/config/config.dart';
 import 'package:odoo_common_code_latest/common/config/prefs/pref_utils.dart';
 import 'package:odoo_common_code_latest/common/utils/utils.dart';
 import 'package:odoo_common_code_latest/common/widgets/log.dart';
 import 'package:odoo_common_code_latest/src/authentication/models/user_model.dart';
-import 'package:odoo_common_code_latest/common/api_factory/models/version_info_response.dart';
-import 'package:odoo_common_code_latest/common/config/config.dart';
+import 'package:uuid/uuid.dart';
 
 enum ApiEnvironment { UAT, Dev, Prod }
 
@@ -54,12 +54,12 @@ class Api {
       print(e);
     }
     if (e is DioError) {
-      if (e.type == DioErrorType.connectTimeout ||
+      if (e.type == DioErrorType.connectionTimeout ||
           e.type == DioErrorType.sendTimeout ||
           e.type == DioErrorType.receiveTimeout ||
-          e.type == DioErrorType.other) {
+          e.type == DioErrorType.unknown) {
         onError('Server unreachable', {});
-      } else if (e.type == DioErrorType.response) {
+      } else if (e.type == DioErrorType.badResponse) {
         final response = e.response;
         if (response != null) {
           final data = response.data;

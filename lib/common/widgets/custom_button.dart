@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class CustomButton extends StatelessWidget {
   var onPress;
@@ -20,7 +18,7 @@ class CustomButton extends StatelessWidget {
       ),
       textColor: Colors.white,
       child: child,
-      color: color ?? Theme.of(context).accentColor,
+      color: color ?? Theme.of(context).buttonTheme.colorScheme?.onSecondary,
     );
   }
 }
